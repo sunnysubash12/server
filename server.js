@@ -32,7 +32,14 @@ const fetchexercises = async (req, res) => {
     const exercises_collection = db.collection(db_exercises_collection_name);
 
     const fetchedexercises = await exercises_collection.find({}).toArray();
-    res.json(fetchedexercises);
+    const result = { data: fetchedexercises };
+
+    // Convert the result object to JSON
+    const json = JSON.stringify(result);
+
+    // Send the JSON response
+    res.setHeader('Content-Type', 'application/json');
+    res.end(json);
 
 }
 
