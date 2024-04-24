@@ -50,13 +50,21 @@ app.use((req, res, next) => {
     next();
 });
 
-// Use the imageMiddleware for a specific route
-app.get('/images/:imageName', imageMiddleware);
-app.post("/orders", insertorders);
-app.put("/lessons/:id", putLessonAvailability);
-// Define your route for getting a lesson
-app.get("/lessons", fetchLessons);
-app.get("/orders", fetchOrders);
+const imageMiddleware = (req, res, next) => {
+    // Assuming the image path is provided in the request URL
+    const imagePath = path.join(__dirname, './images', req.params.imageName);
+
+    // Check if the file exists
+    fs.access(imagePath, fs.constants.F_OK, (error) => {
+        if (error) {
+            // If the file does not exist, send a 404 response
+            res.status(404).send('Image not found');
+        } else {
+            // If the file exists, send the image as a response
+            res.sendFile(imagePath);
+        }
+    });
+};
 
 
 //Use the imageMiddleware for a specific route
