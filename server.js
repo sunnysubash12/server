@@ -9,7 +9,13 @@ const propertiesPath = path.resolve(__dirname, "conf/db.properties");
 const properties = propertiesReader(propertiesPath);
 app.use(cors({ origin: "*" }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
+const admin = require('firebase-admin');
+
+const credentials = require('./serviceAccountKey.json');
+
+// MongoDB Connections
 let dbPprefix = properties.get("db.prefix");
 //for potential special characters
 let dbUrl = properties.get("db.dbUrl");
@@ -20,6 +26,8 @@ const pass = encodeURIComponent(properties.get("db.pwd"));
 const uri = dbPprefix + username + ":" + pass + dbUrl + dbParams;
 const db_name = properties.get("db.dbName");
 const db_exercises_collection_name = "exercises";
+const db_login_collection_name = "login";
+
 
 const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
 
@@ -42,6 +50,7 @@ const fetchexercises = async (req, res) => {
     res.end(json);
 
 }
+
 
 app.use((req, res, next) => {
     const { method, originalUrl, protocol } = req;
@@ -66,14 +75,54 @@ const imageMiddleware = (req, res, next) => {
     });
 };
 
+admin.initializeApp({
+    credential: admin.credential.cert(credentials)
+});
 
+const signup = async (req, res) => {
+    const userResponse = await admin.auth().createUser({
+        email: req.body.email,
+        password: req.body.password,
+        emailVerified: false,
+        disabled: false
+    });
+    res.json(userResponse);
+}
+// Define a function to handle login requests
+const login = async (req, res) => {
+    // Extract username and password from the request body
+    const { username, password } = req.body;
+
+    try {
+        // Connect to the MongoDB database
+        await client.connect();
+        const db = client.db(db_name);
+        // Check if the provided username and password match a user in the database
+        const user = await db.collection(db_login_collection_name).findOne({ username, password });
+
+        if (user) {
+            // If the user exists and the password matches, return success response
+            res.status(200).json({ message: "Login successful" });
+        } else {
+            // If the user doesn't exist or the password doesn't match, return error response
+            res.status(401).json({ message: "Invalid username or password" });
+        }
+    } catch (error) {
+        // If any error occurs during the database operation, return error response
+        console.error("Error during login:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+// Define your route for handling login requests
+app.post('/login', login);
 //Use the imageMiddleware for a specific route
 app.get('/images/:imageName', imageMiddleware);
-// app.post("/orders", insertorders);
-// app.put("/lessons/:id", putLessonAvailability);
 // Define your route for getting a lesson
 app.get("/exercises", fetchexercises);
-// app.get("/orders", fetchOrders);
+//define your route for posting em/pass
+app.post('/signup', signup);
+
 
 //start server
 const port = process.env.PORT || 3000;

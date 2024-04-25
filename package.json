@@ -1,9 +1,28 @@
 {
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sunnysubash12/server.git"
+  },
+  "author": "Sunny Subash",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sunnysubash12/server/issues"
+  },
+  "homepage": "https://github.com/sunnysubash12/server#readme",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "mongodb": "^6.5.0",
-    "node": "^18.20.2",
+    "node": "^22.0.0",
+    "nodeman": "^1.1.2",
     "path": "^0.12.7",
     "properties-reader": "^2.3.0"
   }
