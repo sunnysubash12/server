@@ -9,11 +9,6 @@ const propertiesPath = path.resolve(__dirname, "conf/db.properties");
 const properties = propertiesReader(propertiesPath);
 app.use(cors({ origin: "*" }));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-const admin = require('firebase-admin');
-
-const credentials = require('./serviceAccountKey.json');
 
 // MongoDB Connections
 let dbPprefix = properties.get("db.prefix");
@@ -75,19 +70,6 @@ const imageMiddleware = (req, res, next) => {
     });
 };
 
-admin.initializeApp({
-    credential: admin.credential.cert(credentials)
-});
-
-const signup = async (req, res) => {
-    const userResponse = await admin.auth().createUser({
-        email: req.body.email,
-        password: req.body.password,
-        emailVerified: false,
-        disabled: false
-    });
-    res.json(userResponse);
-}
 // Define a function to handle login requests
 const login = async (req, res) => {
     // Extract username and password from the request body
@@ -120,8 +102,7 @@ app.post('/login', login);
 app.get('/images/:imageName', imageMiddleware);
 // Define your route for getting a lesson
 app.get("/exercises", fetchexercises);
-//define your route for posting em/pass
-app.post('/signup', signup);
+
 
 
 //start server
