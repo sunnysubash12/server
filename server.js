@@ -21,7 +21,7 @@ const pass = encodeURIComponent(properties.get("db.pwd"));
 const uri = dbPprefix + username + ":" + pass + dbUrl + dbParams;
 const db_name = properties.get("db.dbName");
 const db_exercises_collection_name = "exercises";
-const db_login_collection_name = "login";
+const db_patients_collection_name = "patients";
 
 
 const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
@@ -79,22 +79,25 @@ const login = async (req, res) => {
         // Connect to the MongoDB database
         await client.connect();
         const db = client.db(db_name);
+        
         // Check if the provided username and password match a user in the database
-        const user = await db.collection(db_login_collection_name).findOne({ username, password });
+        const user = await db.collection(db_patients_collection_name).findOne({ username, password });
 
         if (user) {
             // If the user exists and the password matches, return success response
-            res.status(200).json({ message: "Login successful" });
+            const status = user.Status; // Assuming 'Status' field exists in MongoDB document
+            res.status(200).send("Login Successful");
         } else {
             // If the user doesn't exist or the password doesn't match, return error response
-            res.status(401).json({ message: "Invalid username or password" });
+            res.status(401).send("Invalid username or password");
         }
     } catch (error) {
         // If any error occurs during the database operation, return error response
         console.error("Error during login:", error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).send("Internal server error");
     }
 };
+
 
 // Define your route for handling login requests
 app.post('/login', login);
