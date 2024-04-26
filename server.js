@@ -92,13 +92,15 @@ const login = async (req, res) => {
         // Connect to the MongoDB database
         await client.connect();
         const db = client.db(db_name);
-        
+
         // Check if the provided username and password match a user in the database
         const user = await db.collection(db_patients_collection_name).findOne({ username, password });
 
         if (user) {
-           // If the user exists and the password matches, generate JWT token
+            // If the user exists and the password matches, generate JWT token
             const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '1h' });
+            // Send the JSON response
+            res.setHeader('Content-Type', 'application/json');
             // If the user exists and the password matches, return success response
             res.status(200).send(token);
         } else {
