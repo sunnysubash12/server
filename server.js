@@ -98,9 +98,9 @@ const login = async (req, res) => {
 
         if (user) {
            // If the user exists and the password matches, generate JWT token
-            // const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '1h' });
             // If the user exists and the password matches, return success response
-            res.status(200).send("login");
+            res.status(200).send(token);
         } else {
             // If the user doesn't exist or the password doesn't match, return error response
             res.status(401).send("Invalid username or password");
