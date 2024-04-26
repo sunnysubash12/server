@@ -9,6 +9,8 @@ const propertiesPath = path.resolve(__dirname, "conf/db.properties");
 const properties = propertiesReader(propertiesPath);
 app.use(cors({ origin: "*" }));
 app.use(express.json());
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 // MongoDB Connections
 let dbPprefix = properties.get("db.prefix");
@@ -25,6 +27,17 @@ const db_patients_collection_name = "patients";
 
 
 const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
+
+
+const generateSecretKey = () => {
+    return crypto.randomBytes(32).toString('hex');
+};
+
+const secretKey = generateSecretKey();
+console.log('Secret Key:', secretKey);
+
+const JWT_SECRET = process.env.JWT_SECRET || secretKey;
+
 
 const fetchexercises = async (req, res) => {
 
@@ -84,8 +97,10 @@ const login = async (req, res) => {
         const user = await db.collection(db_patients_collection_name).findOne({ username, password });
 
         if (user) {
+           // If the user exists and the password matches, generate JWT token
+            const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '1h' });
             // If the user exists and the password matches, return success response
-            const status = user.Status; // Assuming 'Status' field exists in MongoDB document
+            console.log(token);
             res.status(200).send("Login Successful");
         } else {
             // If the user doesn't exist or the password doesn't match, return error response
