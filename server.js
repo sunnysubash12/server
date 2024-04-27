@@ -321,11 +321,11 @@ app.get('/fetchMed/:patient_id', verifyToken,fetchMedById);
 // Define your route for fetching name by username
 app.get('/fetchprofile/:username',verifyToken ,fetchProfileByUsername);
 // Define your route for handling login requests
-app.post('/login',verifyToken ,login);
+app.post('/login' ,login);
 //Use the imageMiddleware for a specific route
-app.get('/images/:imageName', verifyToken,imageMiddleware);
+app.get('/images/:imageName', imageMiddleware);
 // Define your route for getting a lesson
-app.get("/exercises",verifyToken ,fetchexercises);
+app.get("/exercises" ,fetchexercises);
 
 // Error handler middleware
 app.use((err, req, res, next) => {
