@@ -164,8 +164,13 @@ const fetchMedById = async (req, res) => {
         await client.connect();
         const db = client.db(db_name);
         // Find the user document with the matching username
-        const fetchedMed = await db.collection(db_medicines_collection_name).find({ patient_id }).toArray();;
-        const result = { data: fetchedMed };
+        const fetchedMeds = await db.collection(db_medicines_collection_name).find({ patient_id }).toArray();;
+        // If no medicines are found for the patient_id, return a 404 error
+        if (fetchedMeds.length === 0) {
+            res.status(404).json({ error: 'No medicines found for the ptient' });
+            return;
+        }
+        const result = { data: fetchedMeds };
         // Convert the result object to JSON
         const json = JSON.stringify(result);
         // Send the JSON response
@@ -179,7 +184,7 @@ const fetchMedById = async (req, res) => {
 };
 
 // Define your route for fetching name by username
-app.get('/fetchMed/:id', fetchMedById);
+app.get('/fetchMed/:patient_id', fetchMedById);
 // Define your route for fetching name by username
 app.get('/fetchprofile/:username', fetchProfileByUsername);
 // Define your route for handling login requests
