@@ -24,6 +24,8 @@ const uri = dbPprefix + username + ":" + pass + dbUrl + dbParams;
 const db_name = properties.get("db.dbName");
 const db_exercises_collection_name = "exercises";
 const db_patients_collection_name = "patients";
+const db_medicines_collection_name = "medicines";
+
 
 
 
@@ -100,7 +102,7 @@ const login = async (req, res) => {
         if (user) {
             // If the user exists and the password matches, generate JWT token
             const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '1h' });
-            const result = {token}
+            const result = { token }
 
             // Convert the result object to JSON
             const json = JSON.stringify(result);
@@ -152,6 +154,34 @@ const fetchProfileByUsername = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+const fetchMedById = async (req, res) => {
+    // Extract username from the request parameters
+    const { patient_id } = req.params;
+
+    try {
+        // Connect to the MongoDB database
+        await client.connect();
+        const db = client.db(db_name);
+
+        // Find the user document with the matching username
+        const fetchedMed = await db.collection(db_medicines_collection_name).findOne({ patient_id }).toArray();;
+
+        const result = { data: fetchedMed };
+        // Convert the result object to JSON
+        const json = JSON.stringify(result);
+        // Send the JSON response
+        res.setHeader('Content-Type', 'application/json');
+        res.end(json);
+    } catch (error) {
+        // If any error occurs during the database operation, return a 500 error
+        console.error('Error fetching name:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Define your route for fetching name by username
+app.get('/fetchMed/:id', fetchMedById);
 
 // Define your route for fetching name by username
 app.get('/fetchprofile/:username', fetchProfileByUsername);
