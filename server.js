@@ -120,7 +120,7 @@ const login = async (req, res) => {
 };
 
 // Define a function to handle fetching name by username
-const fetchNameByUsername = async (req, res) => {
+const fetchProfileByUsername = async (req, res) => {
     // Extract username from the request parameters
     const { username } = req.params;
 
@@ -154,7 +154,7 @@ const fetchNameByUsername = async (req, res) => {
 };
 
 // Define your route for fetching name by username
-app.get('/fetchName/:username', fetchNameByUsername);
+app.get('/fetchprofile/:username', fetchProfileByUsername);
 // Define your route for handling login requests
 app.post('/login', login);
 //Use the imageMiddleware for a specific route
