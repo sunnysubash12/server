@@ -162,7 +162,6 @@ const fetchProfileByUsername = async (req, res) => {
             const json = JSON.stringify(result);
 
             // Send the JSON response
-            res.setHeader('Content-Type', 'application/json');
             res.end(json);
         } else {
             // If no user is found with the provided username, return a 404 error
