@@ -162,6 +162,7 @@ const fetchProfileByUsername = async (req, res) => {
             const json = JSON.stringify(result);
 
             // Send the JSON response
+            res.setHeader('Content-Type', 'application/json');
             res.end(json);
         } else {
             // If no user is found with the provided username, return a 404 error
@@ -324,7 +325,7 @@ app.post('/login' ,login);
 //Use the imageMiddleware for a specific route
 app.get('/images/:imageName', imageMiddleware);
 // Define your route for getting a lesson
-app.get("/exercises" ,fetchexercises);
+app.get("/exercises",verifyToken ,fetchexercises);
 
 // Error handler middleware
 app.use((err, req, res, next) => {
