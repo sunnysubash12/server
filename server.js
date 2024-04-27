@@ -25,6 +25,8 @@ const db_name = properties.get("db.dbName");
 const db_exercises_collection_name = "exercises";
 const db_patients_collection_name = "patients";
 const db_medicines_collection_name = "medicines";
+const db_team_collection_name = "team";
+
 
 
 
@@ -183,7 +185,28 @@ const fetchMedById = async (req, res) => {
     }
 };
 
-// Define your route for fetching name by username
+const fetchdoctors = async (req, res) => {
+
+    await client.connect();
+
+    const db = client.db(db_name);
+
+    const docters_collection = db.collection(db_team_collection_name);
+
+    const fetchedDocters = await docters_collection.find({}).toArray();
+    const result = { data: fetchedDocters };
+
+    // Convert the result object to JSON
+    const json = JSON.stringify(result);
+
+    // Send the JSON response
+    res.setHeader('Content-Type', 'application/json');
+    res.end(json);
+
+}
+// Define your route for fetching team of docters
+app.get('/docters', fetchdoctors);
+// Define your route for fetching name by id
 app.get('/fetchMed/:patient_id', fetchMedById);
 // Define your route for fetching name by username
 app.get('/fetchprofile/:username', fetchProfileByUsername);
