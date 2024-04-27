@@ -26,6 +26,7 @@ const db_exercises_collection_name = "exercises";
 const db_patients_collection_name = "patients";
 
 
+
 const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
 
 
@@ -118,7 +119,42 @@ const login = async (req, res) => {
     }
 };
 
+// Define a function to handle fetching name by username
+const fetchNameByUsername = async (req, res) => {
+    // Extract username from the request parameters
+    const { username } = req.params;
 
+    try {
+        // Connect to the MongoDB database
+        await client.connect();
+        const db = client.db(db_name);
+
+        // Find the user document with the matching username
+        const fetchedName = await db.collection(db_patients_collection_name).findOne({ username });
+
+        if (fetchedName) {
+            // If the user exists, return the name associated with that username
+            const result = { data: fetchedName };
+
+            // Convert the result object to JSON
+            const json = JSON.stringify(result);
+
+            // Send the JSON response
+            res.setHeader('Content-Type', 'application/json');
+            res.end(json);
+        } else {
+            // If no user is found with the provided username, return a 404 error
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (error) {
+        // If any error occurs during the database operation, return a 500 error
+        console.error('Error fetching name:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Define your route for fetching name by username
+app.get('/fetchName/:username', fetchNameByUsername);
 // Define your route for handling login requests
 app.post('/login', login);
 //Use the imageMiddleware for a specific route
