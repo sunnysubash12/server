@@ -26,10 +26,7 @@ const db_exercises_collection_name = "exercises";
 const db_patients_collection_name = "patients";
 const db_medicines_collection_name = "medicines";
 const db_team_collection_name = "team";
-
-
-
-
+const db_appointments_collection_name = "appointments";
 
 const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
 
@@ -180,7 +177,7 @@ const fetchMedById = async (req, res) => {
         res.end(json);
     } catch (error) {
         // If any error occurs during the database operation, return a 500 error
-        console.error('Error fetching name:', error);
+        console.error('Error fetching medicines:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
@@ -202,8 +199,38 @@ const fetchdoctors = async (req, res) => {
     // Send the JSON response
     res.setHeader('Content-Type', 'application/json');
     res.end(json);
-
 }
+
+const fetchappointById = async (req, res) => {
+    // Extract username from the request parameters
+    const { patient_id } = req.params;
+
+    try {
+        // Connect to the MongoDB database
+        await client.connect();
+        const db = client.db(db_name);
+        // Find the user document with the matching username
+        const fetchedApp = await db.collection(db_appointments_collection_name).find({ patient_id }).toArray();;
+        // If no medicines are found for the patient_id, return a 404 error
+        if (fetchedApp.length === 0) {
+            res.status(404).json({ error: 'No appointment found for the ptient' });
+            return;
+        }
+        const result = { data: fetchedApp };
+        // Convert the result object to JSON
+        const json = JSON.stringify(result);
+        // Send the JSON response
+        res.setHeader('Content-Type', 'application/json');
+        res.end(json);
+    } catch (error) {
+        // If any error occurs during the database operation, return a 500 error
+        console.error('Error fetching appointments:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Define your route for fetching appointment by id
+app.get('/appointment/:patient_id', fetchappointById);
 // Define your route for fetching team of docters
 app.get('/docters', fetchdoctors);
 // Define your route for fetching name by id
