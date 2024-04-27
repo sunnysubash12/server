@@ -163,10 +163,8 @@ const fetchMedById = async (req, res) => {
         // Connect to the MongoDB database
         await client.connect();
         const db = client.db(db_name);
-
         // Find the user document with the matching username
-        const fetchedMed = await db.collection(db_medicines_collection_name).findOne({ patient_id }).toArray();;
-
+        const fetchedMed = await db.collection(db_medicines_collection_name).find({ patient_id }).toArray();;
         const result = { data: fetchedMed };
         // Convert the result object to JSON
         const json = JSON.stringify(result);
@@ -182,7 +180,6 @@ const fetchMedById = async (req, res) => {
 
 // Define your route for fetching name by username
 app.get('/fetchMed/:id', fetchMedById);
-
 // Define your route for fetching name by username
 app.get('/fetchprofile/:username', fetchProfileByUsername);
 // Define your route for handling login requests
