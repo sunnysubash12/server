@@ -99,7 +99,10 @@ const login = async (req, res) => {
         if (user) {
             // If the user exists and the password matches, generate JWT token
             const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '1h' });
-            const json = JSON.stringify(token);
+            const result = {token}
+
+            // Convert the result object to JSON
+            const json = JSON.stringify(result);
             // Send the JSON response
             res.setHeader('Content-Type', 'application/json');
             // If the user exists and the password matches, return success response
