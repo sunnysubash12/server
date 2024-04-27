@@ -43,6 +43,24 @@ console.log('Secret Key:', secretKey);
 
 const JWT_SECRET = process.env.JWT_SECRET || secretKey;
 
+// Middleware to check JWT token
+function verifyToken(req, res, next) {
+    const token = req.headers.authorization;
+
+    if (!token) {
+        return res.status(403).send({ auth: false, message: 'No token provided.' });
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        }
+
+        req.username = decoded.username;
+        next();
+    });
+}
+
 
 const fetchexercises = async (req, res) => {
 
@@ -288,26 +306,32 @@ const fetchhistById = async (req, res) => {
     }
 };
 
+// Secure routes with JWT verification
+app.use('/api', verifyToken);
 // Define your route for fetching report by id
-app.get('/history/:patient_id', fetchhistById);
+app.get('/history/:patient_id', verifyToken,fetchhistById);
 // Define your route for fetching report by id
-app.get('/reports/:patient_id', fetchreporstById);
+app.get('/reports/:patient_id',verifyToken ,fetchreporstById);
 // Define your route for fetching appointment by id
-app.get('/appointment/:patient_id', fetchappointById);
+app.get('/appointment/:patient_id',verifyToken ,fetchappointById);
 // Define your route for fetching team of docters
-app.get('/docters', fetchdoctors);
+app.get('/docters', verifyToken,fetchdoctors);
 // Define your route for fetching name by id
-app.get('/fetchMed/:patient_id', fetchMedById);
+app.get('/fetchMed/:patient_id', verifyToken,fetchMedById);
 // Define your route for fetching name by username
-app.get('/fetchprofile/:username', fetchProfileByUsername);
+app.get('/fetchprofile/:username',verifyToken ,fetchProfileByUsername);
 // Define your route for handling login requests
-app.post('/login', login);
+app.post('/login',verifyToken ,login);
 //Use the imageMiddleware for a specific route
-app.get('/images/:imageName', imageMiddleware);
+app.get('/images/:imageName', verifyToken,imageMiddleware);
 // Define your route for getting a lesson
-app.get("/exercises", fetchexercises);
+app.get("/exercises",verifyToken ,fetchexercises);
 
-
+// Error handler middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ message: 'Internal server error' });
+});
 
 //start server
 const port = process.env.PORT || 3000;
