@@ -289,7 +289,7 @@ const fetchhistById = async (req, res) => {
 };
 
 // Define your route for fetching report by id
-app.get('/history/:patient_id', fetchedHis);
+app.get('/history/:patient_id', fetchhistById);
 // Define your route for fetching report by id
 app.get('/reports/:patient_id', fetchreporstById);
 // Define your route for fetching appointment by id
